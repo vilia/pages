@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infographic: Mobile Gaming Revenue Dynamics 2024-2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: "Vibrant Analytics" (Inspired by Brilliant Blues & Amber) -->
+    <!-- Application Structure Plan: A top-down narrative infographic. It begins with a hero section to state the main theme (hybrid monetization). Section 2 provides a global overview with key stats and a donut chart for the IAP/IAA split. Section 3 is a comparative regional deep-dive (USA, Russia, MENA) using a 3-column grid, each with stats, a donut chart, and key drivers. Section 4 visualizes dominant industry trends using an HTML/CSS flowchart. Section 5 presents H1 2025 forecasts using a comparative stacked bar chart. This structure guides the user from general to specific, tells a clear story, and makes complex comparisons easy to grasp. -->
+    <!-- Visualization & Content Choices:
+        - Data Point: Global Revenue Split -> Goal: Inform/Compare -> Viz: Donut Chart -> Justification: Clearly shows the estimated proportion of IAP vs. IAA, highlighting IAA's potential dominance. -> Library: Chart.js/Canvas.
+        - Data Point: Regional Revenue Splits -> Goal: Compare -> Viz: 3x Donut Charts in a grid -> Justification: Allows for direct, side-by-side comparison of monetization models in each key region. -> Library: Chart.js/Canvas.
+        - Data Point: H1 2025 Forecasts -> Goal: Compare/Change -> Viz: Stacked Bar Chart -> Justification: The best way to compare the total forecasted revenue of the regions while also showing the internal composition (IAP/IAA) of that forecast. -> Library: Chart.js/Canvas.
+        - Data Point: Dominant Industry Trends -> Goal: Organize/Show Relationships -> Viz: HTML/CSS Flowchart -> Justification: Visually connects interdependent trends (e.g., high UA costs leading to a focus on retention via LiveOps), telling a more compelling story than a simple list. -> Method: HTML/CSS with Tailwind Flexbox/Grid.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; scroll-behavior: smooth; }
+        .chart-container { position: relative; width: 100%; max-width: 320px; margin-left: auto; margin-right: auto; height: 280px; max-height: 280px; }
+        .forecast-chart-container { position: relative; width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; height: 400px; max-height: 450px; }
+        .stat-card { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+        .flowchart-item { border: 2px solid #e2e8f0; }
+        .flowchart-arrow { color: #64748b; font-weight: bold; }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+        <section id="hero" class="text-center mb-20">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4">The Mobile Gaming Gold Rush</h1>
+            <p class="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto">In 2024, the market didn't just grow—it evolved. A strategic pivot to <span class="font-bold text-blue-600">Hybrid Monetization</span>, blending In-App Purchases (IAP) and In-App Advertising (IAA), is now defining success across the globe.</p>
+        </section>
+
+        <section id="global-overview" class="mb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-800">The Global Picture: A $97.6 Billion Market</h2>
+                <p class="mt-2 text-md text-slate-500">Mobile solidified its dominance, accounting for nearly half of all gaming industry revenue in 2024.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-8">
+                    <div class="stat-card bg-white p-6 rounded-xl shadow-lg text-center">
+                        <p class="text-lg font-semibold text-slate-500">Global IAP Revenue</p>
+                        <p class="text-5xl font-extrabold text-blue-600 mt-2">$82B</p>
+                        <p class="text-sm text-slate-400 mt-1">+4% YoY Growth</p>
+                    </div>
+                     <div class="stat-card bg-white p-6 rounded-xl shadow-lg text-center">
+                        <p class="text-lg font-semibold text-slate-500">Mobile's Share of Gaming</p>
+                        <p class="text-5xl font-extrabold text-amber-500 mt-2">49%</p>
+                        <p class="text-sm text-slate-400 mt-1">Surpassing PC & Console</p>
+                    </div>
+                </div>
+                <div class="md:col-span-2 lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold text-center mb-2 text-slate-800">Global Revenue Split (Derived)</h3>
+                    <div class="chart-container" style="max-width:280px; height:220px;">
+                        <canvas id="globalRevenueChart"></canvas>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2 text-center max-w-sm mx-auto">This derived split reconciles total market size with reported IAP. However, some sources estimate the standalone IAA market could be over $100B, making it the potential silent giant of revenue.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="regional-deep-dive" class="mb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-800">A Tale of Three Markets</h2>
+                <p class="mt-2 text-md text-slate-500">Global trends manifest differently. Here's how the USA, Russia, and MENA compare.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col">
+                    <h3 class="text-2xl font-bold text-center text-slate-900">USA</h3>
+                    <p class="text-center text-slate-500 mb-4 font-medium">Mature & High-Value</p>
+                    <p class="text-4xl font-extrabold text-center text-blue-600 mb-4">$58.1B</p>
+                    <div class="chart-container mx-auto">
+                        <canvas id="usaRevenueChart"></canvas>
+                    </div>
+                    <div class="mt-auto pt-4">
+                        <h4 class="font-bold mb-2">Key Drivers:</h4>
+                        <ul class="space-y-2 text-sm text-slate-600">
+                            <li class="flex items-start"><span class="mr-2 text-lg">💰</span> <div><span class="font-semibold">High Spend Per Player:</span> 4x the global average at $6.43 per download.</div></li>
+                            <li class="flex items-start"><span class="mr-2 text-lg">🎯</span> <div><span class="font-semibold">Retention > Acquisition:</span> Focus on LTV maximization as UA costs rise.</div></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col">
+                    <h3 class="text-2xl font-bold text-center text-slate-900">Russia</h3>
+                    <p class="text-center text-slate-500 mb-4 font-medium">Resilient & Adaptive</p>
+                    <p class="text-4xl font-extrabold text-center text-blue-600 mb-4">$747M</p>
+                    <div class="chart-container mx-auto">
+                        <canvas id="russiaRevenueChart"></canvas>
+                    </div>
+                    <div class="mt-auto pt-4">
+                        <h4 class="font-bold mb-2">Key Drivers:</h4>
+                        <ul class="space-y-2 text-sm text-slate-600">
+                            <li class="flex items-start"><span class="mr-2 text-lg">🏬</span> <div><span class="font-semibold">Alternative App Stores:</span> Growth of domestic platforms like RuStore bypasses restrictions.</div></li>
+                            <li class="flex items-start"><span class="mr-2 text-lg">📺</span> <div><span class="font-semibold">Ad-Supported Growth:</span> IAA is the dominant revenue model, showing continued strength.</div></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col">
+                    <h3 class="text-2xl font-bold text-center text-slate-900">MENA</h3>
+                    <p class="text-center text-slate-500 mb-4 font-medium">High-Growth Frontier</p>
+                    <p class="text-4xl font-extrabold text-center text-blue-600 mb-4">$5.3B</p>
+                    <div class="chart-container mx-auto">
+                        <canvas id="menaRevenueChart"></canvas>
+                    </div>
+                    <div class="mt-auto pt-4">
+                        <h4 class="font-bold mb-2">Key Drivers:</h4>
+                        <ul class="space-y-2 text-sm text-slate-600">
+                            <li class="flex items-start"><span class="mr-2 text-lg">🚀</span> <div><span class="font-semibold">Youthful Demographics:</span> 55% of the population is under 30 and highly tech-savvy.</div></li>
+                            <li class="flex items-start"><span class="mr-2 text-lg">🏛️</span> <div><span class="font-semibold">Government Investment:</span> Massive strategic funding for gaming & esports hubs.</div></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="trends-flowchart" class="mb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-800">The Modern Monetization Playbook</h2>
+                <p class="mt-2 text-md text-slate-500">Key industry trends are not isolated—they form a strategic, interconnected cycle.</p>
+            </div>
+            <div class="bg-white p-8 rounded-xl shadow-lg">
+                <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4">
+                    <div class="flowchart-item p-4 rounded-lg text-center max-w-xs">
+                        <p class="font-bold">Rising User Acquisition Costs</p>
+                        <p class="text-sm text-slate-500">Especially in mature markets</p>
+                    </div>
+                    <div class="text-2xl flowchart-arrow transform md:rotate-0 rotate-90">→</div>
+                    <div class="flowchart-item p-4 rounded-lg text-center max-w-xs">
+                        <p class="font-bold">Focus on Retention & LTV</p>
+                        <p class="text-sm text-slate-500">Maximizing value from existing players</p>
+                    </div>
+                    <div class="text-2xl flowchart-arrow transform md:rotate-0 rotate-90">→</div>
+                    <div class="flowchart-item p-4 rounded-lg text-center max-w-xs">
+                        <p class="font-bold">Powered by LiveOps & AI</p>
+                        <p class="text-sm text-slate-500">84% of IAP revenue from LiveOps games</p>
+                    </div>
+                     <div class="text-2xl flowchart-arrow transform md:rotate-0 rotate-90">→</div>
+                    <div class="flowchart-item p-4 rounded-lg text-center max-w-xs bg-blue-50 border-blue-200">
+                        <p class="font-bold text-blue-800">Maximized by Hybrid & D2C</p>
+                        <p class="text-sm text-blue-600">Monetizing all players and bypassing fees</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="forecast" class="mb-12">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-800">Outlook: H1 2025 Forecast</h2>
+                <p class="mt-2 text-md text-slate-500">A look at the projected revenue for the first half of 2025 across the key regions.</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <div class="forecast-chart-container">
+                    <canvas id="forecastChart"></canvas>
+                </div>
+                <p class="text-sm text-slate-600 mt-4">The forecast shows continued strong performance in the USA, steady adaptation in Russia, and MENA's emergence as a significant market powerhouse. The revenue composition in each region highlights the varying importance of IAP versus IAA monetization strategies.</p>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="text-center py-8">
+        <p class="text-sm text-slate-500">Infographic generated based on data from sources including Sensor Tower, Newzoo, Statista, and others. For detailed analysis, refer to the full report.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chartTooltipCallback = {
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                if (Array.isArray(label)) {
+                                  return label.join(' ');
+                                }
+                                return label;
+                            },
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) { label += ': '; }
+                                if (context.parsed !== null) { label += context.parsed + '%'; }
+                                return label;
+                            }
+                        }
+                    },
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 15,
+                            padding: 20,
+                            font: { size: 12 }
+                        }
+                    }
+                }
+            };
+            
+            const donutOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                ...chartTooltipCallback
+            };
+
+            const colors = {
+                iap: '#2563EB', // blue-600
+                iaa: '#F59E0B'  // amber-500
+            };
+
+            new Chart(document.getElementById('globalRevenueChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['IAP', 'IAA (Implied)'],
+                    datasets: [{
+                        data: [84, 16],
+                        backgroundColor: [colors.iap, colors.iaa],
+                        borderColor: '#ffffff',
+                        borderWidth: 4,
+                        hoverOffset: 4
+                    }]
+                },
+                options: donutOptions
+            });
+
+            new Chart(document.getElementById('usaRevenueChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['IAP', 'IAA'],
+                    datasets: [{
+                        data: [43, 57],
+                        backgroundColor: [colors.iap, colors.iaa],
+                        borderColor: '#ffffff',
+                        borderWidth: 4,
+                        hoverOffset: 4
+                    }]
+                },
+                options: donutOptions
+            });
+            
+            new Chart(document.getElementById('russiaRevenueChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['IAP', 'IAA'],
+                    datasets: [{
+                        data: [33, 67],
+                        backgroundColor: [colors.iap, colors.iaa],
+                        borderColor: '#ffffff',
+                        borderWidth: 4,
+                        hoverOffset: 4
+                    }]
+                },
+                options: donutOptions
+            });
+
+            new Chart(document.getElementById('menaRevenueChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['IAP', 'IAA'],
+                    datasets: [{
+                        data: [23, 77],
+                        backgroundColor: [colors.iap, colors.iaa],
+                        borderColor: '#ffffff',
+                        borderWidth: 4,
+                        hoverOffset: 4
+                    }]
+                },
+                options: donutOptions
+            });
+            
+            new Chart(document.getElementById('forecastChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['USA', 'Russia', 'MENA'],
+                    datasets: [
+                        {
+                            label: 'IAP Forecast (H1 2025)',
+                            data: [13.1, 0.130, 0.68], // in Billions
+                            backgroundColor: colors.iap,
+                        },
+                        {
+                            label: 'IAA Forecast (H1 2025)',
+                            data: [17.4, 0.263, 2.27], // in Billions
+                            backgroundColor: colors.iaa,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true },
+                        y: { 
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value + 'B';
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Revenue (in Billions USD)'
+                            }
+                        }
+                    },
+                    plugins: {
+                         tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const item = tooltipItems[0];
+                                    let label = item.chart.data.labels[item.dataIndex];
+                                    if (Array.isArray(label)) { return label.join(' '); }
+                                    return label;
+                                },
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) { label += ': '; }
+                                    let value = context.parsed.y;
+                                    if (value < 1) {
+                                        label += '$' + Math.round(value * 1000) + 'M';
+                                    } else {
+                                        label += '$' + value.toFixed(2) + 'B';
+                                    }
+                                    return label;
+                                }
+                            }
+                        },
+                        legend: { position: 'top' }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
