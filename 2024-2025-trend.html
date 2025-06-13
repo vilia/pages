@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Report: Mobile Gaming Revenue Dynamics 2024-2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: "Calm Harmony" - Neutrals (Slate) with Blue and Amber accents. -->
+    <!-- Application Structure Plan: A top-down "scrollytelling" dashboard. It starts with a global summary, then moves to an interactive regional deep-dive section (the app's core) where users can select a region (USA, Russia, MENA) and time period (2024, H1 2025F) to dynamically update charts and text. It concludes with a section on key industry trends. This structure guides the user from the general to the specific, making complex data digestible and allowing for direct comparison, which is more intuitive than the linear report format. A new Gemini-powered feature will be added to generate strategic insights based on the selected region. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Regional Revenue Split -> Goal: Compare, Inform -> Viz: Stacked Bar Chart & Donut Chart -> Interaction: User clicks buttons to select region/time, charts update -> Justification: Stacked bar and donut charts are ideal for showing part-to-whole relationships (IAP/IAA within total revenue) and are easily understood. Dynamic updates make comparison intuitive. -> Library: Chart.js/Canvas.
+        - Report Info: Key Regional Drivers -> Goal: Explain -> Viz: Dynamic Text & Icon Cards -> Interaction: Content updates with region selection. -> Justification: Breaks down dense text into scannable, visually appealing cards, improving readability. -> Library: HTML/CSS/JS.
+        - Report Info: Overarching Industry Trends -> Goal: Organize, Explain -> Viz: Interactive Accordion -> Interaction: User clicks trend title to expand content. -> Justification: Condenses a large amount of text into a manageable format, allowing users to explore topics of interest without overwhelming them. -> Library: HTML/CSS/JS.
+        - Gemini API Integration: Generate Strategic Insights -> Goal: Advise, Synthesize -> Viz: Button-triggered text generation -> Interaction: User clicks button to generate AI insights based on current context. -> Justification: Adds significant value by turning descriptive data into prescriptive advice, showcasing AI's analytical power.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .chart-container { position: relative; width: 100%; max-width: 500px; margin-left: auto; margin-right: auto; height: 300px; max-height: 350px; }
+        @media (min-width: 768px) { .chart-container { height: 350px; max-height: 400px; } }
+        .stat-card { transition: all 0.3s ease-in-out; }
+        .nav-button.active { background-color: #2563EB; color: white; }
+        .nav-button { transition: background-color 0.2s, color 0.2s; }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out; }
+        .accordion-item.open .accordion-content { max-height: 500px; padding-top: 1rem; padding-bottom: 1rem; }
+        .accordion-item.open .accordion-icon { transform: rotate(180deg); }
+        .accordion-icon { transition: transform 0.3s ease; }
+        .gemini-btn {
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            transition: all 0.3s ease;
+        }
+        .gemini-btn:hover { box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); transform: translateY(-2px); }
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #FFF;
+            border-bottom-color: #4F46E5;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <main class="w-full">
+        <header class="bg-white shadow-sm sticky top-0 z-50">
+            <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+                <h1 class="text-xl md:text-2xl font-bold text-slate-900">Mobile Game Revenue Insights</h1>
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="#global" class="text-slate-600 hover:text-blue-600 font-medium">Global</a>
+                    <a href="#regional-deep-dive" class="text-slate-600 hover:text-blue-600 font-medium">Regional Analysis</a>
+                    <a href="#trends" class="text-slate-600 hover:text-blue-600 font-medium">Key Trends</a>
+                </div>
+            </nav>
+        </header>
+
+        <section id="hero" class="py-16 md:py-24 text-center bg-slate-100">
+            <div class="max-w-4xl mx-auto px-4">
+                <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight">The Hybrid Monetization Era</h2>
+                <p class="mt-4 text-lg md:text-xl text-slate-600 max-w-2xl mx-auto">
+                    In 2024, the mobile gaming market demonstrated robust growth, driven by a strategic shift towards blending In-App Purchases (IAP) and In-App Advertising (IAA). This report unpacks the revenue dynamics across key global markets.
+                </p>
+            </div>
+        </section>
+
+        <section id="global" class="py-16 md:py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl font-bold text-slate-900">Global Market at a Glance</h3>
+                    <p class="mt-2 text-lg text-slate-600">The worldwide mobile gaming market rebounded strongly, dominating the overall gaming industry.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                    <div class="stat-card bg-white p-6 rounded-xl shadow-md">
+                        <p class="text-slate-500 font-medium">2024 Global Revenue (Est.)</p>
+                        <p class="text-4xl font-bold text-blue-600 mt-2">$97.6 Billion</p>
+                    </div>
+                    <div class="stat-card bg-white p-6 rounded-xl shadow-md">
+                        <p class="text-slate-500 font-medium">2024 Global IAP Revenue</p>
+                        <p class="text-4xl font-bold text-blue-600 mt-2">$82.0 Billion</p>
+                    </div>
+                     <div class="stat-card bg-white p-6 rounded-xl shadow-md">
+                        <p class="text-slate-500 font-medium">Games' Share of Industry</p>
+                        <p class="text-4xl font-bold text-blue-600 mt-2">49%</p>
+                    </div>
+                </div>
+                <div class="mt-12 bg-white p-6 rounded-xl shadow-md">
+                     <p class="text-center font-semibold text-lg mb-4 text-slate-700">The Monetization Discrepancy</p>
+                    <p class="text-slate-600 text-center max-w-3xl mx-auto">
+                        A key challenge in sizing the market is the variance in reporting. IAP revenue is tracked directly, but the full scale of IAA is harder to consolidate. While some models derive IAA as the remainder of total revenue, other studies suggest the global mobile game advertising market could be as large as <span class="font-bold text-slate-800">$106.5 billion</span> on its own. This indicates IAA might be the dominant revenue stream, making hybrid monetization—capturing value from both paying and non-paying users—the most critical strategy for modern developers.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="regional-deep-dive" class="py-16 md:py-20 bg-slate-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl font-bold text-slate-900">Regional Deep-Dive</h3>
+                    <p class="mt-2 text-lg text-slate-600">Select a region and time period to explore distinct market dynamics and revenue splits.</p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-10">
+                    <div id="region-selector" class="flex justify-center space-x-2 bg-slate-200 p-1.5 rounded-lg">
+                        <button data-region="usa" class="nav-button active px-4 py-2 text-sm font-semibold rounded-md">USA</button>
+                        <button data-region="russia" class="nav-button px-4 py-2 text-sm font-semibold rounded-md">Russia</button>
+                        <button data-region="mena" class="nav-button px-4 py-2 text-sm font-semibold rounded-md">MENA</button>
+                    </div>
+                    <div id="time-selector" class="flex justify-center space-x-2 bg-slate-200 p-1.5 rounded-lg">
+                        <button data-time="2024" class="nav-button active px-4 py-2 text-sm font-semibold rounded-md">2024</button>
+                        <button data-time="h1_2025" class="nav-button px-4 py-2 text-sm font-semibold rounded-md">H1 2025F</button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+                        <div class="lg:col-span-3">
+                            <h4 id="chart-title" class="text-2xl font-bold text-slate-900 mb-4 text-center">USA: 2024 Revenue Breakdown</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center mb-6">
+                                <div class="stat-card bg-slate-50 p-4 rounded-lg">
+                                    <p class="text-sm text-slate-500 font-medium">Total Revenue</p>
+                                    <p id="metric-total" class="text-2xl font-bold text-blue-600 mt-1">$58.1B</p>
+                                </div>
+                                <div class="stat-card bg-slate-50 p-4 rounded-lg">
+                                    <p class="text-sm text-slate-500 font-medium">IAP Revenue</p>
+                                    <p id="metric-iap" class="text-2xl font-bold text-blue-600 mt-1">$25.0B</p>
+                                </div>
+                                <div class="stat-card bg-slate-50 p-4 rounded-lg">
+                                    <p class="text-sm text-slate-500 font-medium">IAA Revenue</p>
+                                    <p id="metric-iaa" class="text-2xl font-bold text-blue-600 mt-1">$33.1B</p>
+                                </div>
+                            </div>
+                            <div class="chart-container mx-auto">
+                                <canvas id="regionalRevenueChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-2 mt-6 lg:mt-0">
+                             <h4 class="text-xl font-bold text-slate-900 mb-2">Market Analysis</h4>
+                             <p id="analysis-text" class="text-slate-600 mb-6">The US is a mature, high-value market. Despite a drop in downloads, revenue grew thanks to an 11% rise in spending per player. Monetization is sophisticated, with a focus on retaining and monetizing high-value "whale" players, especially on iOS.</p>
+                             <h4 class="text-xl font-bold text-slate-900 mb-4">Key Drivers & Characteristics</h4>
+                             <div id="drivers-list" class="space-y-3"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-10 border-t pt-8 border-slate-200">
+                        <div class="text-center">
+                            <button id="generate-insights-btn" class="gemini-btn text-white font-bold py-3 px-6 rounded-lg text-lg inline-flex items-center">
+                                ✨ Generate Strategic Insights
+                            </button>
+                        </div>
+                        <div id="insights-container" class="mt-6 p-6 bg-slate-50 rounded-lg hidden">
+                            <div id="loader" class="text-center hidden"><div class="loader mx-auto"></div></div>
+                            <div id="insights-result" class="prose prose-slate max-w-none"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section id="trends" class="py-16 md:py-20">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl font-bold text-slate-900">Dominant Industry Trends</h3>
+                    <p class="mt-2 text-lg text-slate-600">These strategic shifts are defining the future of mobile game monetization and development.</p>
+                </div>
+                <div id="accordion-container" class="space-y-4">
+                </div>
+            </div>
+        </section>
+
+        <footer class="bg-slate-800 text-slate-300 py-8 text-center">
+            <p>Interactive report generated based on the "Mobile Gaming Revenue Dynamics" analysis.</p>
+            <p class="text-sm text-slate-400 mt-1">This is a synthesized visualization and not a direct publication from the original data sources.</p>
+        </footer>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const appData = {
+                usa: {
+                    2024: {
+                        total: 58.1, iap: 25.0, iaa: 33.1, iap_pct: 43, iaa_pct: 57,
+                        analysis: "The US is a mature, high-value market. Despite a drop in downloads, revenue grew thanks to an 11% rise in spending per player. Monetization is sophisticated, with a focus on retaining and monetizing high-value 'whale' players, especially on iOS.",
+                        drivers: [
+                            { icon: '💰', title: 'High Spend Per Player', desc: 'Average of $6.43 per download, 4x the global average.' },
+                            { icon: '🎯', title: 'Retention Over Acquisition', desc: 'Focus on LTV maximization due to high user acquisition costs.' },
+                            { icon: '📈', title: 'Strong Midcore Genre', desc: 'RPGs and Strategy games drive a significant portion of revenue.' }
+                        ]
+                    },
+                    h1_2025: {
+                        total: 30.5, iap: 13.1, iaa: 17.4, iap_pct: 43, iaa_pct: 57,
+                        analysis: "The forecast for H1 2025 shows continued stable growth. The market will further lean on sophisticated LiveOps and hybrid monetization to extract value from its established player base, maintaining its high per-player spending trends.",
+                        drivers: [
+                            { icon: '💰', title: 'Sustained High LTV', desc: 'Continued focus on maximizing value from existing players.' },
+                            { icon: '🔄', title: 'Deep Hybrid Integration', desc: 'Rewarded ads and IAP offers become more deeply intertwined.' },
+                            { icon: '🏆', title: 'LiveOps Excellence', desc: 'Ongoing events and content are critical for revenue.' }
+                        ]
+                    }
+                },
+                russia: {
+                    2024: {
+                        total: 0.747, iap: 0.247, iaa: 0.500, iap_pct: 33, iaa_pct: 67,
+                        analysis: "The Russian market demonstrates remarkable resilience. Despite payment challenges, IAP revenue grew 12%, supported by a shift to alternative domestic app stores like RuStore. The data suggests a strong, growing ad-based monetization ecosystem.",
+                        drivers: [
+                            { icon: '🏬', title: 'Alternative App Stores', desc: 'Players and developers migrate to platforms like RuStore to bypass restrictions.' },
+                            { icon: '📺', title: 'Ad-Supported Model Growth', desc: 'A clear trend towards ad-monetized games gaining popularity.' },
+                            { icon: '🌍', title: 'Strong Localization', desc: 'Effective localization of global titles remains a key engagement driver.' }
+                        ]
+                    },
+                    h1_2025: {
+                        total: 0.393, iap: 0.130, iaa: 0.263, iap_pct: 33, iaa_pct: 67,
+                        analysis: "H1 2025 projections indicate continued adaptation. The market's growth will likely depend on the strength of its domestic platforms and the increasing sophistication of its IAA market, solidifying its ad-centric revenue model.",
+                        drivers: [
+                            { icon: '🇷🇺', title: 'Domestic Ecosystem', desc: 'Growth is tied to the success of local platforms like RuStore and VK Play.' },
+                            { icon: '📊', title: 'IAA Market Maturation', desc: 'The in-app advertising market continues to be the primary revenue source.' },
+                            { icon: '🧩', title: 'Genre Popularity', desc: 'Puzzle and Strategy games are expected to continue leading revenue charts.' }
+                        ]
+                    }
+                },
+                mena: {
+                    2024: {
+                        total: 5.3, iap: 1.2, iaa: 4.1, iap_pct: 23, iaa_pct: 77,
+                        analysis: "MENA is a high-growth frontier, expanding rapidly due to a young, tech-savvy population and massive government investment in gaming and esports. It is a mobile-first region where IAA appears to be the dominant revenue source.",
+                        drivers: [
+                            { icon: '👶', title: 'Youthful Demographics', desc: '55% of the population is under 30, creating a massive, engaged audience.' },
+                            { icon: '🏛️', title: 'Government Investment', desc: 'Initiatives like Saudi Vision 2030 are creating a thriving industry hub.' },
+                            { icon: '📱', title: 'Mobile-First Market', desc: 'Over 65% of total gaming revenue comes from mobile platforms.' }
+                        ]
+                    },
+                    h1_2025: {
+                        total: 2.95, iap: 0.68, iaa: 2.27, iap_pct: 23, iaa_pct: 77,
+                        analysis: "The forecast for H1 2025 points to accelerated growth, fueled by strong government backing and organic user base expansion. The region's focus on becoming a global esports hub will likely boost mobile engagement and monetization further.",
+                        drivers: [
+                            { icon: '🚀', title: 'Accelerated Growth', desc: 'MENA is projected to have the highest regional gaming growth globally.' },
+                            { icon: '🎮', title: 'Esports Hub Development', desc: 'Major events like the Esports World Cup drive engagement and visibility.' },
+                            { icon: '🤝', title: 'Local Talent & Content', desc: 'Investment in local studios is expected to produce culturally resonant games.' }
+                        ]
+                    }
+                },
+                trends: [
+                     {
+                        title: "The Rise of Hybrid Monetization",
+                        content: "Blending IAP and IAA is now a mainstream strategy to maximize revenue from all player segments. Games using hybrid models saw a 37% growth in IAP revenue in 2024. The key is to use rewarded ads to complement, not cannibalize, IAP offerings through careful player segmentation."
+                    },
+                    {
+                        title: "LiveOps as a Core Revenue Engine",
+                        content: "Treating games as a 'live service' is crucial. Regular content updates, events, and community engagement maintain long-term player interest. In 2024, games with strong LiveOps models accounted for a staggering 84% of all IAP revenue, proving that players spend where they are engaged."
+                    },
+                    {
+                        title: "AI-Powered Personalization",
+                        content: "Artificial Intelligence is being used to tailor game difficulty, offer personalized IAP bundles, and optimize ad placements. This hyper-personalization enhances player experience and significantly boosts monetization effectiveness by presenting the right offer at the right time."
+                    },
+                    {
+                        title: "Direct-to-Consumer (D2C) Channels",
+                        content: "Larger publishers are building their own web stores to sell in-game items directly, bypassing the 30% app store commission. This strategy increases profit margins and fosters a direct relationship with players. D2C channels are projected to add over $3.7 billion in revenue by 2025."
+                    },
+                    {
+                        title: "IP Collaborations and Brand Power",
+                        content: "Games based on well-known Intellectual Properties (IP) like Monopoly or Pokémon have a significant advantage in a crowded market. Collaborations between existing games and popular brands also create massive revenue spikes, demonstrating the power of brand recognition to drive engagement and spending."
+                    }
+                ]
+            };
+
+            let currentRegion = 'usa';
+            let currentTime = '2024';
+            let regionalRevenueChart;
+
+            const regionSelector = document.getElementById('region-selector');
+            const timeSelector = document.getElementById('time-selector');
+            const chartTitle = document.getElementById('chart-title');
+            const metricTotal = document.getElementById('metric-total');
+            const metricIap = document.getElementById('metric-iap');
+            const metricIaa = document.getElementById('metric-iaa');
+            const analysisText = document.getElementById('analysis-text');
+            const driversList = document.getElementById('drivers-list');
+
+            const generateInsightsBtn = document.getElementById('generate-insights-btn');
+            const insightsContainer = document.getElementById('insights-container');
+            const insightsResult = document.getElementById('insights-result');
+            const loader = document.getElementById('loader');
+
+            function formatNumber(num) {
+                if (num >= 1) {
+                    return `$${num.toFixed(1)}B`;
+                }
+                return `$${Math.round(num * 1000)}M`;
+            }
+            
+            function clearInsights() {
+                insightsContainer.classList.add('hidden');
+                insightsResult.innerHTML = '';
+            }
+
+            function updateDisplay() {
+                clearInsights();
+                const data = appData[currentRegion][currentTime];
+
+                chartTitle.textContent = `${currentRegion.toUpperCase()}: ${currentTime === '2024' ? '2024' : 'H1 2025F'} Revenue Breakdown`;
+
+                metricTotal.textContent = formatNumber(data.total);
+                metricIap.textContent = formatNumber(data.iap);
+                metricIaa.textContent = formatNumber(data.iaa);
+
+                analysisText.textContent = data.analysis;
+
+                driversList.innerHTML = '';
+                data.drivers.forEach(driver => {
+                    const driverEl = document.createElement('div');
+                    driverEl.className = 'flex items-start p-3 bg-slate-50 rounded-lg';
+                    driverEl.innerHTML = `
+                        <span class="text-2xl mr-4">${driver.icon}</span>
+                        <div>
+                            <p class="font-semibold">${driver.title}</p>
+                            <p class="text-sm text-slate-500">${driver.desc}</p>
+                        </div>`;
+                    driversList.appendChild(driverEl);
+                });
+                
+                updateChart();
+                updateActiveButtons();
+            }
+
+            function updateChart() {
+                const data = appData[currentRegion][currentTime];
+                
+                if (regionalRevenueChart) {
+                    regionalRevenueChart.data.datasets[0].data = [data.iap_pct, data.iaa_pct];
+                    regionalRevenueChart.data.datasets[0].backgroundColor = ['#3B82F6', '#F59E0B'];
+                    regionalRevenueChart.update();
+                }
+            }
+
+            function initChart() {
+                const ctx = document.getElementById('regionalRevenueChart').getContext('2d');
+                const initialData = appData[currentRegion][currentTime];
+
+                regionalRevenueChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['In-App Purchases (IAP)', 'In-App Advertising (IAA)'],
+                        datasets: [{
+                            data: [initialData.iap_pct, initialData.iaa_pct],
+                            backgroundColor: ['#3B82F6', '#F59E0B'],
+                            borderColor: '#FFFFFF',
+                            borderWidth: 4,
+                            hoverOffset: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '65%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    font: {
+                                        size: 14
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed !== null) {
+                                            label += context.parsed + '%';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function updateActiveButtons() {
+                regionSelector.querySelectorAll('button').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.region === currentRegion);
+                });
+                timeSelector.querySelectorAll('button').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.time === currentTime);
+                });
+            }
+            
+            regionSelector.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON' && e.target.dataset.region !== currentRegion) {
+                    currentRegion = e.target.dataset.region;
+                    updateDisplay();
+                }
+            });
+
+            timeSelector.addEventListener('click', (e) => {
+                 if (e.target.tagName === 'BUTTON' && e.target.dataset.time !== currentTime) {
+                    currentTime = e.target.dataset.time;
+                    updateDisplay();
+                }
+            });
+            
+            function createAccordion() {
+                const container = document.getElementById('accordion-container');
+                appData.trends.forEach((item, index) => {
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'accordion-item bg-white rounded-lg shadow-md';
+                    itemEl.innerHTML = `
+                        <button class="accordion-header w-full flex justify-between items-center text-left p-5">
+                            <h4 class="text-lg font-semibold text-slate-800">${item.title}</h4>
+                            <span class="accordion-icon text-2xl text-slate-500 transform transition-transform">
+                                &#x25BC;
+                            </span>
+                        </button>
+                        <div class="accordion-content px-5 text-slate-600">
+                            <p>${item.content}</p>
+                        </div>
+                    `;
+                    container.appendChild(itemEl);
+                    if (index === 0) {
+                        itemEl.classList.add('open');
+                    }
+                });
+
+                container.addEventListener('click', e => {
+                    const header = e.target.closest('.accordion-header');
+                    if (header) {
+                        const item = header.parentElement;
+                        const wasOpen = item.classList.contains('open');
+
+                        container.querySelectorAll('.accordion-item').forEach(el => el.classList.remove('open'));
+                        
+                        if (!wasOpen) {
+                             item.classList.add('open');
+                        }
+                    }
+                });
+            }
+            
+            async function handleGenerateInsights() {
+                insightsContainer.classList.remove('hidden');
+                loader.classList.remove('hidden');
+                insightsResult.innerHTML = '';
+                generateInsightsBtn.disabled = true;
+
+                const data = appData[currentRegion][currentTime];
+                const driversText = data.drivers.map(d => `- ${d.title}: ${d.desc}`).join('\n');
+                
+                const prompt = `
+                    As a mobile gaming market analyst, provide actionable strategic recommendations for a game developer.
+                    
+                    Market Context:
+                    - Region: ${currentRegion.toUpperCase()}
+                    - Time Period: ${currentTime === '2024' ? '2024' : 'H1 2025 Forecast'}
+                    - Revenue Split: ${data.iap_pct}% from In-App Purchases (IAP), ${data.iaa_pct}% from In-App Advertising (IAA).
+                    - Market Analysis: ${data.analysis}
+                    - Key Drivers:
+                    ${driversText}
+
+                    Based *only* on the provided data, generate a bulleted list of 3-5 concise, actionable strategic recommendations focusing on:
+                    1.  Monetization Strategy
+                    2.  User Acquisition & Retention
+                    3.  Genre & Feature Focus
+
+                    Format the output as a markdown list.
+                `;
+
+                try {
+                    let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                    const payload = { contents: chatHistory };
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API call failed with status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
+                        let text = result.candidates[0].content.parts[0].text;
+                        text = text.replace(/\*/g, '•');
+                        text = text.replace(/•\s/g, '<li>');
+                        text = `<ul>${text}</ul>`.replace(/<\/li>(\r\n|\n|\r)/gm, '</li>').replace(/<\/li><li>/g, '</li></ul><ul><li>');
+                        insightsResult.innerHTML = text;
+                    } else {
+                        throw new Error("Invalid response structure from API.");
+                    }
+
+                } catch (error) {
+                    console.error("Gemini API Error:", error);
+                    insightsResult.innerHTML = `<p class="text-red-500 font-semibold">An error occurred while generating insights. Please try again later.</p>`;
+                } finally {
+                    loader.classList.add('hidden');
+                    generateInsightsBtn.disabled = false;
+                }
+            }
+
+            generateInsightsBtn.addEventListener('click', handleGenerateInsights);
+
+            initChart();
+            createAccordion();
+            updateDisplay();
+
+        });
+    </script>
+</body>
+</html>
+
